@@ -41,15 +41,6 @@ require("lazy").setup({
 			vim.cmd("colorscheme gruvbox")
 		end,
 	},
-	{
-		"kyazdani42/nvim-tree.lua",
-		config = function()
-			require("nvim-tree").setup({})
-		end,
-		keys = {
-			{ "<leader>e", ":NvimTreeToggle<CR>", desc = "Toggle NvimTree" },
-		},
-	},
 	-- {
 	-- 	"ramojus/mellifluous.nvim",
 	-- 	config = function()
@@ -125,7 +116,23 @@ require("lazy").setup({
 	-- 		-- },
 	-- 	},
 	-- },
-	--
+	-- side folder tree
+	{
+		"kyazdani42/nvim-tree.lua",
+		config = function()
+			require("nvim-tree").setup({})
+		end,
+		keys = {
+			{ "<leader>e", ":NvimTreeToggle<CR>", desc = "Toggle NvimTree" },
+		},
+	},
+	-- git decorations
+	{
+		"lewis6991/gitsigns.nvim",
+		config = function()
+			require("gitsigns").setup()
+		end,
+	},
 	-- Lazy Git interface
 	{
 		"kdheepak/lazygit.nvim",
@@ -490,6 +497,8 @@ keymap.set({ "n", "v" }, "<leader>/", ":CommentToggle<cr>")
 keymap.set("n", "<leader>E", ":Explore<cr>")
 -- Copy to system clipboard (ctrl + c)
 keymap.set({ "n", "v" }, "<C-c>", '"+y<cr>')
+-- Delete highlight after using "/" or "?"
+keymap.set("n", "<leader>M", ":nohlsearch<cr>")
 
 -- Move lines up and down
 keymap.set("n", "<C-j>", ":m .+1<CR>==")

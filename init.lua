@@ -33,8 +33,10 @@ require("lazy").setup({
 		priority = 1000,
 		config = function()
 			require("gruvbox").setup({
+				terminal_colors = true,
+				contrast = "hard",
 				transparent_mode = true,
-				inverse = true,
+				-- inverse = true,
 			})
 			vim.cmd("colorscheme gruvbox")
 		end,
@@ -81,11 +83,11 @@ require("lazy").setup({
 	-- },
 	--
 	-- To get rid of bad practices
-	{
-		"m4xshen/hardtime.nvim",
-		dependencies = { "MunifTanjim/nui.nvim", "nvim-lua/plenary.nvim" },
-		opts = {},
-	},
+	-- {
+	-- 	"m4xshen/hardtime.nvim",
+	-- 	dependencies = { "MunifTanjim/nui.nvim", "nvim-lua/plenary.nvim" },
+	-- 	opts = {},
+	-- },
 
 	-- Show Available motions
 	-- {
@@ -194,6 +196,21 @@ require("lazy").setup({
 		"nvim-telescope/telescope.nvim",
 		tag = "0.1.6",
 		dependencies = { "nvim-lua/plenary.nvim" },
+		config = function()
+			require("telescope").setup({
+				defaults = {
+					layout_strategy = "vertical",
+					layout_config = {
+						preview_cutoff = 1,
+						prompt_position = "bottom",
+						mirror = true,
+						vertical = {
+							mirror = false,
+						},
+					},
+				},
+			})
+		end,
 	},
 	-- Auto Comment
 	{

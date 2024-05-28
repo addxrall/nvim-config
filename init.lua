@@ -41,6 +41,15 @@ require("lazy").setup({
 			vim.cmd("colorscheme gruvbox")
 		end,
 	},
+	{
+		"kyazdani42/nvim-tree.lua",
+		config = function()
+			require("nvim-tree").setup({})
+		end,
+		keys = {
+			{ "<leader>e", ":NvimTreeToggle<CR>", desc = "Toggle NvimTree" },
+		},
+	},
 	-- {
 	-- 	"ramojus/mellifluous.nvim",
 	-- 	config = function()
@@ -478,7 +487,7 @@ keymap.set("n", "<leader>fm", vim.lsp.buf.format)
 -- comment toggle
 keymap.set({ "n", "v" }, "<leader>/", ":CommentToggle<cr>")
 -- Explore files
-keymap.set("n", "<leader>e", ":Explore<cr>")
+keymap.set("n", "<leader>E", ":Explore<cr>")
 -- Copy to system clipboard (ctrl + c)
 keymap.set({ "n", "v" }, "<C-c>", '"+y<cr>')
 

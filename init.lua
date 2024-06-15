@@ -28,31 +28,32 @@ vim.opt.smartindent = true
 
 require("lazy").setup({
 	-- Themes
-	{
-		"ellisonleao/gruvbox.nvim",
-		priority = 1000,
-		config = function()
-			require("gruvbox").setup({
-				terminal_colors = true,
-				contrast = "hard",
-				transparent_mode = true,
-				-- inverse = true,
-			})
-			vim.cmd("colorscheme gruvbox")
-		end,
-	},
 	-- {
-	-- 	"ramojus/mellifluous.nvim",
+	-- 	"ellisonleao/gruvbox.nvim",
+	-- 	priority = 1000,
 	-- 	config = function()
-	-- 		require("mellifluous").setup({
-	-- 			transparent_background = {
-	-- 				enabled = true,
-	-- 				telescope = false,
-	-- 			},
+	-- 		require("gruvbox").setup({
+	-- 			terminal_colors = true,
+	-- 			contrast = "soft",
+	-- 			transparent_mode = true,
+	-- 			-- inverse = true,
 	-- 		})
-	-- 		vim.cmd("colorscheme mellifluous")
+	-- 		vim.cmd("colorscheme gruvbox")
 	-- 	end,
 	-- },
+	{
+		"ramojus/mellifluous.nvim",
+		config = function()
+			require("mellifluous").setup({
+				transparent_background = {
+					enabled = true,
+					telescope = true,
+					floating_windows = true,
+				},
+			})
+			vim.cmd("colorscheme mellifluous")
+		end,
+	},
 	-- {
 	-- 	"AlexvZyl/nordic.nvim",
 	-- 	lazy = false,
@@ -88,34 +89,6 @@ require("lazy").setup({
 	-- 	dependencies = { "MunifTanjim/nui.nvim", "nvim-lua/plenary.nvim" },
 	-- 	opts = {},
 	-- },
-
-	-- Show Available motions
-	-- {
-	-- 	"tris203/precognition.nvim",
-	-- 	config = {
-	-- 		-- startVisible = true,
-	-- 		-- showBlankVirtLine = true,
-	-- 		-- hints = {
-	-- 		--      Caret = { text = "^", prio = 2 },
-	-- 		--      Dollar = { text = "$", prio = 1 },
-	-- 		--      MatchingPair = { text = "%", prio = 5 },
-	-- 		--      Zero = { text = "0", prio = 1 },
-	-- 		--      w = { text = "w", prio = 10 },
-	-- 		--      b = { text = "b", prio = 9 },
-	-- 		--      e = { text = "e", prio = 8 },
-	-- 		--      W = { text = "W", prio = 7 },
-	-- 		--      B = { text = "B", prio = 6 },
-	-- 		--      E = { text = "E", prio = 5 },
-	-- 		-- },
-	-- 		-- gutterHints = {
-	-- 		--     -- prio is not currently used for gutter hints
-	-- 		--     G = { text = "G", prio = 1 },
-	-- 		--     gg = { text = "gg", prio = 1 },
-	-- 		--     PrevParagraph = { text = "{", prio = 1 },
-	-- 		--     NextParagraph = { text = "}", prio = 1 },
-	-- 		-- },
-	-- 	},
-	-- },
 	-- side folder tree
 	{
 		"kyazdani42/nvim-tree.lua",
@@ -124,6 +97,11 @@ require("lazy").setup({
 		end,
 		keys = {
 			{ "<leader>e", ":NvimTreeToggle<CR>", desc = "Toggle NvimTree" },
+			{
+				"<leader>E",
+				":NvimTreeFocus<CR>",
+				desc = "Focus NvimTree",
+			},
 		},
 	},
 	-- git decorations
@@ -241,166 +219,30 @@ require("lazy").setup({
 		event = "InsertEnter",
 		config = true,
 	},
-	-- Mason
+	-- LSP Configuration & Plugins
 	{
-		"williamboman/mason.nvim",
+		"neovim/nvim-lspconfig",
 		dependencies = {
+			"williamboman/mason.nvim",
 			"williamboman/mason-lspconfig.nvim",
-			"WhoIsSethDaniel/mason-tool-installer.nvim",
+			{ "j-hui/fidget.nvim", opts = {} },
+			"folke/neodev.nvim",
 		},
-		config = function()
-			local mason = require("mason")
-			local mason_lspconfig = require("mason-lspconfig")
-			local mason_tool_installer = require("mason-tool-installer")
-
-			mason.setup({
-				ui = {
-					icons = {
-						package_installed = "✓",
-						package_pending = "➜",
-						package_uninstalled = "✗",
-					},
-				},
-			})
-
-			mason_lspconfig.setup({
-				ensure_installed = {
-					"tsserver",
-					"html",
-					"cssls",
-					"tailwindcss",
-					"lua_ls",
-					"graphql",
-					"emmet_ls",
-					"prismals",
-				},
-			})
-
-			mason_tool_installer.setup({
-				ensure_installed = {
-					"prettier",
-					"stylua",
-					"isort",
-					"black",
-					"pylint",
-					"eslint_d",
-				},
-			})
-		end,
 	},
 	-- Autocompletion
 	{
 		"hrsh7th/nvim-cmp",
 		dependencies = {
-			"hrsh7th/cmp-nvim-lsp",
-			"hrsh7th/cmp-buffer",
-			"hrsh7th/cmp-path",
-			"saadparwaiz1/cmp_luasnip",
+			-- Snippet Engine & its associated nvim-cmp source
 			"L3MON4D3/LuaSnip",
-		},
-		config = function()
-			local cmp = require("cmp")
-			local luasnip = require("luasnip")
+			"saadparwaiz1/cmp_luasnip",
 
-			luasnip.config.setup({})
-			require("luasnip.loaders.from_vscode").lazy_load()
-
-			cmp.setup({
-				snippet = {
-					expand = function(args)
-						luasnip.lsp_expand(args.body)
-					end,
-				},
-				completion = { completeopt = "menu,menuone,noinsert" },
-				mapping = {
-					["<Tab>"] = cmp.mapping.confirm({ select = true }),
-					["<S-Tab>"] = cmp.mapping.select_next_item(),
-				},
-				sources = {
-					{ name = "nvim_lsp" },
-					{ name = "buffer" },
-					{ name = "path" },
-				},
-			})
-		end,
-	},
-	-- LSP
-	{
-		"neovim/nvim-lspconfig",
-		event = { "BufReadPre", "BufNewFile" },
-		dependencies = {
+			-- Adds LSP completion capabilities
 			"hrsh7th/cmp-nvim-lsp",
-			{ "antosha417/nvim-lsp-file-operations", config = true },
-			{ "folke/neodev.nvim", opts = {} },
+			"hrsh7th/cmp-path",
 		},
-		config = function()
-			local lspconfig = require("lspconfig")
-			local mason_lspconfig = require("mason-lspconfig")
-			local cmp_nvim_lsp = require("cmp_nvim_lsp")
-			local keymap = vim.keymap
-			local capabilities = cmp_nvim_lsp.default_capabilities()
-
-			vim.api.nvim_create_autocmd("LspAttach", {
-				group = vim.api.nvim_create_augroup("UserLspConfig", {}),
-				callback = function(ev)
-					local opts = { buffer = ev.buf, silent = true }
-					keymap.set("n", "gD", vim.lsp.buf.declaration, opts) -- go to declaration
-					keymap.set("n", "<F2>", vim.lsp.buf.rename, opts) -- smart rename
-					keymap.set("n", "K", vim.lsp.buf.hover, opts) -- show documentation for what is under cursor
-					keymap.set("n", "<leader>rs", ":LspRestart<CR>", opts) -- mapping to restart lsp if necessary
-				end,
-			})
-
-			local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
-			for type, icon in pairs(signs) do
-				local hl = "DiagnosticSign" .. type
-				vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
-			end
-
-			mason_lspconfig.setup_handlers({
-				function(server_name)
-					lspconfig[server_name].setup({
-						capabilities = capabilities,
-					})
-				end,
-				["graphql"] = function()
-					lspconfig["graphql"].setup({
-						capabilities = capabilities,
-						filetypes = { "graphql", "gql", "typescriptreact", "javascriptreact" },
-					})
-				end,
-				["emmet_ls"] = function()
-					lspconfig["emmet_ls"].setup({
-						capabilities = capabilities,
-						filetypes = {
-							"html",
-							"typescriptreact",
-							"javascriptreact",
-							"css",
-							"sass",
-							"scss",
-							"less",
-						},
-					})
-				end,
-				["lua_ls"] = function()
-					lspconfig["lua_ls"].setup({
-						capabilities = capabilities,
-						settings = {
-							Lua = {
-								diagnostics = {
-									globals = { "vim" },
-								},
-								completion = {
-									callSnippet = "Replace",
-								},
-							},
-						},
-					})
-				end,
-			})
-		end,
 	},
+
 	-- Highlight, edit, and navigate code
 	{
 		"nvim-treesitter/nvim-treesitter",
@@ -486,6 +328,8 @@ require("lazy").setup({
 local builtin = require("telescope.builtin")
 local keymap = vim.keymap
 
+vim.o.completeopt = "menuone,noselect"
+
 -- telescope
 keymap.set("n", "<leader><leader>", builtin.find_files, {})
 keymap.set("n", "<leader>g", builtin.live_grep, {})
@@ -494,7 +338,7 @@ keymap.set("n", "<leader>fm", vim.lsp.buf.format)
 -- comment toggle
 keymap.set({ "n", "v" }, "<leader>/", ":CommentToggle<cr>")
 -- Explore files
-keymap.set("n", "<leader>E", ":Explore<cr>")
+-- keymap.set("n", "<leader>E", ":Explore<cr>")
 -- Copy to system clipboard (ctrl + c)
 keymap.set({ "n", "v" }, "<C-c>", '"+y<cr>')
 -- Delete highlight after using "/" or "?"

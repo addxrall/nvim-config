@@ -10,7 +10,6 @@ local on_attach = function(client, bufnr)
 
 	vim.keymap.set("n", "<F2>", vim.lsp.buf.rename, { noremap = true })
 	nmap("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
-
 	nmap("gd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
 	nmap("gr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
 	nmap("gI", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
@@ -57,6 +56,11 @@ local rubyformat = {
 	formatStdin = true,
 }
 
+local goformat = {
+	formatCommand = [[goimports]],
+	formatStdin = true,
+}
+
 local servers = {
 	-- clangd = {},
 	pyright = {},
@@ -75,6 +79,7 @@ local servers = {
 			gohtmltmpl = { prettierHTML },
 			elixir = { elixirformat },
 			ruby = { rubyformat },
+			go = { goformat },
 		},
 	},
 	tsserver = {},
@@ -102,6 +107,10 @@ capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
 
 -- Ensure the servers above are installed
 local mason_lspconfig = require("mason-lspconfig")
+
+mason_lspconfig.setup({
+	ensure_installed = { "gopls", "tsserver", "elixirls", "templ", "efm", "cssls", "lua_ls" },
+})
 
 mason_lspconfig.setup_handlers({
 	function(server_name)

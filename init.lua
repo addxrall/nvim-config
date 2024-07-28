@@ -28,47 +28,41 @@ vim.opt.smartindent = true
 
 require("lazy").setup({
 	-- Themes
+	{
+		"AlexvZyl/nordic.nvim",
+		lazy = false,
+		priority = 1000,
+		config = function()
+			require("nordic").setup({
+				transparent_bg = true,
+				telescope = {
+					style = "classic",
+				},
+				cursorline = {
+					theme = "light",
+					blend = 0.35,
+				},
+			})
+			require("nordic").load()
+		end,
+	},
+	-- {
+	-- 	"morhetz/gruvbox",
+	-- 	config = function()
+	-- 		vim.cmd.colorscheme("gruvbox")
+	-- 	end,
+	-- },
 	-- {
 	-- 	"ellisonleao/gruvbox.nvim",
 	-- 	priority = 1000,
 	-- 	config = function()
 	-- 		require("gruvbox").setup({
 	-- 			terminal_colors = true,
-	-- 			contrast = "soft",
+	-- 			contrast = "hard",
 	-- 			transparent_mode = true,
 	-- 			-- inverse = true,
 	-- 		})
 	-- 		vim.cmd("colorscheme gruvbox")
-	-- 	end,
-	-- },
-	{
-		"ramojus/mellifluous.nvim",
-		config = function()
-			require("mellifluous").setup({
-				transparent_background = {
-					enabled = true,
-					telescope = true,
-					floating_windows = true,
-				},
-			})
-			vim.cmd("colorscheme mellifluous")
-		end,
-	},
-	-- {
-	-- 	"AlexvZyl/nordic.nvim",
-	-- 	lazy = false,
-	-- 	priority = 1000,
-	-- 	config = function()
-	-- 		require("nordic").setup({
-	-- 			telescope = {
-	-- 				style = "classic",
-	-- 			},
-	-- 			ts_context = {
-	-- 				dark_background = true,
-	-- 			},
-	-- 			transparent_bg = true,
-	-- 		})
-	-- 		vim.cmd([[colorscheme nordic]])
 	-- 	end,
 	-- },
 	-- {
@@ -77,17 +71,10 @@ require("lazy").setup({
 	-- 	priority = 1000,
 	-- 	config = function()
 	-- 		require("github-theme").setup({
-	-- 			options = { transparent = true, darken = { floats = true } },
+	-- 			options = { darken = { floats = true } },
 	-- 		})
 	-- 		vim.cmd([[colorscheme github_dark_high_contrast]])
 	-- 	end,
-	-- },
-	--
-	-- To get rid of bad practices
-	-- {
-	-- 	"m4xshen/hardtime.nvim",
-	-- 	dependencies = { "MunifTanjim/nui.nvim", "nvim-lua/plenary.nvim" },
-	-- 	opts = {},
 	-- },
 	-- side folder tree
 	{
@@ -184,6 +171,7 @@ require("lazy").setup({
 		dependencies = {
 			"SmiteshP/nvim-navic",
 		},
+		opts = {},
 	},
 	-- Telescope
 	{
@@ -204,6 +192,11 @@ require("lazy").setup({
 					},
 				},
 			})
+
+			local keymap = vim.keymap
+			keymap.set("n", "<leader>ca", function()
+				require("telescope.builtin").lsp_code_actions()
+			end, { desc = "Code Actions" })
 		end,
 	},
 	-- Auto Comment
@@ -242,7 +235,6 @@ require("lazy").setup({
 			"hrsh7th/cmp-path",
 		},
 	},
-
 	-- Highlight, edit, and navigate code
 	{
 		"nvim-treesitter/nvim-treesitter",
@@ -252,7 +244,8 @@ require("lazy").setup({
 				"json",
 				"javascript",
 				"typescript",
-				"tsx",
+				-- "jsx",
+				-- "tsx",
 				"yaml",
 				"html",
 				"css",
@@ -287,40 +280,85 @@ require("lazy").setup({
 		end,
 	},
 	{
-		"stevearc/conform.nvim",
-		lazy = false,
-		keys = {
-			{
-				"<leader>f",
-				function()
-					require("conform").format({ async = true, lsp_fallback = true })
-				end,
-
-				mode = "",
-				desc = "[F]ormat buffer",
-			},
-		},
+		"akinsho/bufferline.nvim",
+		version = "*",
+		dependencies = "nvim-tree/nvim-web-devicons",
+		config = function()
+			require("bufferline").setup({
+				options = {
+					numbers = "ordinal",
+					diagnostics_indicator = function(diagnostics_dict)
+						local s = " "
+						for e, n in pairs(diagnostics_dict) do
+							local sym = e == "error" and " " or (e == "warning" and " " or "●")
+							s = s .. n .. sym
+						end
+						return s
+					end,
+				},
+			})
+		end,
+	},
+	{
+		"folke/noice.nvim",
+		event = "VeryLazy",
 		opts = {
-			notify_on_error = false,
-			format_on_save = function(bufnr)
-				local disable_filetypes = { c = true, cpp = true }
-				return {
-					timeout_ms = 500,
-					lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
-				}
-			end,
-			formatters_by_ft = {
-				python = { "isort", "black" },
-				-- python = { "autopep8" },
-				javascript = { { "prettierd", "prettier" } },
-				lua = { "stylua" },
-				cpp = { "clang_format" },
-				c = { "clang_format" },
-				go = { "gofumpt" },
-				cs = { "csharpier" },
-				yaml = { "yamlfmt" },
+			command_palette = { enable = true },
+			views = {
+				cmdline_popup = {
+					position = {
+						row = 15,
+						col = "50%",
+					},
+					size = {
+						width = "auto",
+						height = "auto",
+					},
+				},
 			},
 		},
+		dependencies = {
+			"MunifTanjim/nui.nvim",
+		},
+	},
+	{
+		"stevearc/conform.nvim",
+		event = { "BufReadPre", "BufNewFile" },
+		config = function()
+			local conform = require("conform")
+
+			conform.setup({
+				formatters_by_ft = {
+					javascript = { "prettier", "prettierd" },
+					typescript = { "prettier", "prettierd" },
+					javascriptreact = { "prettier" },
+					typescriptreact = { "prettier" },
+					svelte = { "prettier" },
+					css = { "prettier" },
+					html = { "prettier" },
+					json = { "prettier" },
+					yaml = { "prettier" },
+					markdown = { "prettier" },
+					graphql = { "prettier" },
+					liquid = { "prettier" },
+					lua = { "stylua" },
+					python = { "isort", "black" },
+				},
+				format_on_save = {
+					lsp_fallback = true,
+					async = false,
+					timeout_ms = 1000,
+				},
+			})
+
+			vim.keymap.set({ "n", "v" }, "<leader>f", function()
+				conform.format({
+					lsp_fallback = true,
+					async = false,
+					timeout_ms = 1000,
+				})
+			end, { desc = "Format file or range (in visual mode)" })
+		end,
 	},
 })
 
@@ -330,6 +368,7 @@ local keymap = vim.keymap
 
 vim.o.completeopt = "menuone,noselect"
 
+keymap.set({ "n", "v" }, "<leader>p", '"_dP')
 -- telescope
 keymap.set("n", "<leader><leader>", builtin.find_files, {})
 keymap.set("n", "<leader>g", builtin.live_grep, {})
@@ -343,7 +382,9 @@ keymap.set({ "n", "v" }, "<leader>/", ":CommentToggle<cr>")
 keymap.set({ "n", "v" }, "<C-c>", '"+y<cr>')
 -- Delete highlight after using "/" or "?"
 keymap.set("n", "<leader>M", ":nohlsearch<cr>")
-
+--buffer
+keymap.set("n", "<leader>1", ":BufferLineCyclePrev<CR>")
+keymap.set("n", "<leader>2", ":BufferLineCycleNext<CR>")
 -- Move lines up and down
 keymap.set("n", "<C-j>", ":m .+1<CR>==")
 keymap.set("n", "<C-k>", ":m .-2<CR>==")

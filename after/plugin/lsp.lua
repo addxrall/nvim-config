@@ -9,7 +9,7 @@ local on_attach = function(client, bufnr)
 	end
 
 	vim.keymap.set("n", "<F2>", vim.lsp.buf.rename, { noremap = true })
-	nmap("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
+	nmap("gf", vim.lsp.buf.code_action, "[C]ode [A]ction")
 	nmap("gd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
 	nmap("gr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
 	nmap("gI", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
@@ -36,11 +36,6 @@ local prettier = {
 	formatStdin = true,
 }
 
-local terraformformat = {
-	formatCommand = [[terraform fmt -]],
-	formatStdin = true,
-}
-
 local prettierHTML = {
 	formatCommand = [[echo "${INPUT}" | grep -iqe '\.html\.tmpl$' && prettier --parser html --stdin-filepath ${INPUT}]],
 	formatStdin = true,
@@ -62,9 +57,8 @@ local goformat = {
 }
 
 local servers = {
-	-- clangd = {},
 	pyright = {},
-	-- rust_analyzer = {},
+	gopls = {},
 	efm = {
 		init_options = { documentFormatting = true },
 		languages = {
@@ -75,16 +69,26 @@ local servers = {
 			scss = { prettier },
 			javascript = { prettier },
 			javascriptreact = { prettier },
-			terraform = { terraformformat },
 			gohtmltmpl = { prettierHTML },
+			gotmpl = { goformat },
+			go = { goformat },
 			elixir = { elixirformat },
 			ruby = { rubyformat },
-			go = { goformat },
 		},
 	},
 	tsserver = {},
-	-- html = { filetypes = { 'html', 'twig', 'hbs' }, format = { templating = true } },
-	-- terraformls = {},
+	html = {
+		filetypes = { "html", "twig", "hbs", "templ" },
+		format = { templating = true },
+		settings = {
+			html = {
+				suggest = {
+					html5 = true,
+					htmx = true,
+				},
+			},
+		},
+	},
 	templ = {},
 	elixirls = {},
 	svelte = {},
@@ -98,14 +102,11 @@ local servers = {
 	},
 }
 
--- Setup neovim lua configuration
 require("neodev").setup()
 
--- nvim-cmp supports additional completion capabilities, so broadcast that to servers
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
 
--- Ensure the servers above are installed
 local mason_lspconfig = require("mason-lspconfig")
 
 mason_lspconfig.setup({

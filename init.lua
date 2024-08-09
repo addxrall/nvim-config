@@ -47,12 +47,6 @@ require("lazy").setup({
 		end,
 	},
 	-- {
-	-- 	"morhetz/gruvbox",
-	-- 	config = function()
-	-- 		vim.cmd.colorscheme("gruvbox")
-	-- 	end,
-	-- },
-	-- {
 	-- 	"ellisonleao/gruvbox.nvim",
 	-- 	priority = 1000,
 	-- 	config = function()
@@ -244,8 +238,6 @@ require("lazy").setup({
 				"json",
 				"javascript",
 				"typescript",
-				-- "jsx",
-				-- "tsx",
 				"yaml",
 				"html",
 				"css",
@@ -262,6 +254,7 @@ require("lazy").setup({
 				"query",
 				"vimdoc",
 				"c",
+				"templ",
 			},
 			auto_install = true,
 			highlight = {
@@ -360,6 +353,26 @@ require("lazy").setup({
 			end, { desc = "Format file or range (in visual mode)" })
 		end,
 	},
+	{
+		"aznhe21/actions-preview.nvim",
+		config = function()
+			require("actions-preview").setup({
+				telescope = {
+					sorting_strategy = "ascending",
+					layout_strategy = "vertical",
+					layout_config = {
+						width = 0.8,
+						height = 0.9,
+						prompt_position = "top",
+						preview_cutoff = 20,
+						preview_height = function(_, _, max_lines)
+							return max_lines - 15
+						end,
+					},
+				},
+			})
+		end,
+	},
 })
 
 -- Keymaps --
@@ -372,6 +385,8 @@ keymap.set({ "n", "v" }, "<leader>p", '"_dP')
 -- telescope
 keymap.set("n", "<leader><leader>", builtin.find_files, {})
 keymap.set("n", "<leader>g", builtin.live_grep, {})
+-- code actions
+keymap.set({ "v", "n" }, "<leader>ca", require("actions-preview").code_actions)
 -- lsp format
 keymap.set("n", "<leader>fm", vim.lsp.buf.format)
 -- comment toggle

@@ -10,12 +10,10 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 	})
 end
 vim.opt.rtp:prepend(lazypath)
-
 -- Nvim options
 vim.g.mapleader = " "
 vim.opt.nu = true
 vim.opt.relativenumber = true
-
 vim.opt.tabstop = 2
 vim.opt.softtabstop = 2
 vim.opt.shiftwidth = 2
@@ -46,6 +44,7 @@ require("lazy").setup({
 			require("nordic").load()
 		end,
 	},
+
 	-- {
 	-- 	"ellisonleao/gruvbox.nvim",
 	-- 	priority = 1000,
@@ -65,9 +64,9 @@ require("lazy").setup({
 	-- 	priority = 1000,
 	-- 	config = function()
 	-- 		require("github-theme").setup({
-	-- 			options = { darken = { floats = true } },
+	-- 			options = { darken = { floats = true }, transparent = true },
 	-- 		})
-	-- 		vim.cmd([[colorscheme github_dark_high_contrast]])
+	-- 		vim.cmd([[colorscheme github_dark_default]])
 	-- 	end,
 	-- },
 	-- side folder tree
@@ -158,15 +157,15 @@ require("lazy").setup({
 		end,
 	},
 	-- Utility line
-	{
-		"utilyre/barbecue.nvim",
-		name = "barbecue",
-		version = "*",
-		dependencies = {
-			"SmiteshP/nvim-navic",
-		},
-		opts = {},
-	},
+	-- {
+	-- 	"utilyre/barbecue.nvim",
+	-- 	name = "barbecue",
+	-- 	version = "*",
+	-- 	dependencies = {
+	-- 		"SmiteshP/nvim-navic",
+	-- 	},
+	-- 	opts = {},
+	-- },
 	-- Telescope
 	{
 		"nvim-telescope/telescope.nvim",
@@ -273,24 +272,18 @@ require("lazy").setup({
 		end,
 	},
 	{
-		"akinsho/bufferline.nvim",
-		version = "*",
-		dependencies = "nvim-tree/nvim-web-devicons",
-		config = function()
-			require("bufferline").setup({
-				options = {
-					numbers = "ordinal",
-					diagnostics_indicator = function(diagnostics_dict)
-						local s = " "
-						for e, n in pairs(diagnostics_dict) do
-							local sym = e == "error" and " " or (e == "warning" and " " or "●")
-							s = s .. n .. sym
-						end
-						return s
-					end,
-				},
-			})
+		"romgrk/barbar.nvim",
+		dependencies = {
+			"lewis6991/gitsigns.nvim",
+			"nvim-tree/nvim-web-devicons",
+		},
+		init = function()
+			vim.g.barbar_auto_setup = false
 		end,
+		opts = {
+			animation = true,
+		},
+		version = "^1.0.0",
 	},
 	{
 		"folke/noice.nvim",
@@ -378,6 +371,7 @@ require("lazy").setup({
 -- Keymaps --
 local builtin = require("telescope.builtin")
 local keymap = vim.keymap
+local opts = { noremap = true, silent = true }
 
 vim.o.completeopt = "menuone,noselect"
 
@@ -390,7 +384,7 @@ keymap.set({ "v", "n" }, "<leader>ca", require("actions-preview").code_actions)
 -- lsp format
 keymap.set("n", "<leader>fm", vim.lsp.buf.format)
 -- comment toggle
-keymap.set({ "n", "v" }, "<leader>/", ":CommentToggle<cr>")
+keymap.set({ "n", "v" }, "<leader>/", ":CommentToggle<cr>", opts)
 -- Explore files
 -- keymap.set("n", "<leader>E", ":Explore<cr>")
 -- Copy to system clipboard (ctrl + c)
@@ -398,8 +392,10 @@ keymap.set({ "n", "v" }, "<C-c>", '"+y<cr>')
 -- Delete highlight after using "/" or "?"
 keymap.set("n", "<leader>M", ":nohlsearch<cr>")
 --buffer
-keymap.set("n", "<leader>1", ":BufferLineCyclePrev<CR>")
-keymap.set("n", "<leader>2", ":BufferLineCycleNext<CR>")
+--ESC + key is option + key, just changed in iterm settings: Profiles > keys > Esc+ enable
+keymap.set("n", "<Esc>d", "<Cmd>BufferPrevious<CR>", opts)
+keymap.set("n", "<Esc>f", "<Cmd>BufferNext<CR>", opts)
+keymap.set("n", "<Esc>g", "<Cmd>BufferClose<CR>", opts)
 -- Move lines up and down
 keymap.set("n", "<C-j>", ":m .+1<CR>==")
 keymap.set("n", "<C-k>", ":m .-2<CR>==")

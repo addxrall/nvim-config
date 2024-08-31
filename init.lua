@@ -211,6 +211,7 @@ require("lazy").setup({
 		dependencies = {
 			"williamboman/mason.nvim",
 			"williamboman/mason-lspconfig.nvim",
+			"lukas-reineke/lsp-format.nvim",
 			{ "j-hui/fidget.nvim", opts = {} },
 			"folke/neodev.nvim",
 		},
@@ -364,6 +365,13 @@ require("lazy").setup({
 					},
 				},
 			})
+		end,
+	},
+	{
+		"sebdah/vim-delve",
+		ft = "go",
+		init = function()
+			vim.g.delve_new_command = "tabnew"
 		end,
 	},
 })

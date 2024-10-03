@@ -44,7 +44,6 @@ require("lazy").setup({
 			require("nordic").load()
 		end,
 	},
-
 	-- {
 	-- 	"ellisonleao/gruvbox.nvim",
 	-- 	priority = 1000,
@@ -374,7 +373,13 @@ require("lazy").setup({
 			vim.g.delve_new_command = "tabnew"
 		end,
 	},
+	-- highlight for colors
+	{
+		"NvChad/nvim-colorizer.lua",
+	},
 })
+
+require("colorizer").setup()
 
 -- Keymaps --
 local builtin = require("telescope.builtin")

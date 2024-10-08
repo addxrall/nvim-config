@@ -51,7 +51,7 @@ require("lazy").setup({
 	-- 		require("gruvbox").setup({
 	-- 			terminal_colors = true,
 	-- 			contrast = "hard",
-	-- 			transparent_mode = true,
+	-- 			transparent_mode = false,
 	-- 			-- inverse = true,
 	-- 		})
 	-- 		vim.cmd("colorscheme gruvbox")
@@ -104,7 +104,7 @@ require("lazy").setup({
 			"nvim-lua/plenary.nvim",
 		},
 		keys = {
-			{ "<leader>lg", "<cmd>LazyGit<cr>", desc = "LazyGit" },
+			{ "<leader>LG", "<cmd>LazyGit<cr>", desc = "LazyGit" },
 		},
 	},
 	-- Cursor line
@@ -271,19 +271,25 @@ require("lazy").setup({
 			require("nvim-treesitter.configs").setup(opts)
 		end,
 	},
+	-- Buffer
 	{
-		"romgrk/barbar.nvim",
-		dependencies = {
-			"lewis6991/gitsigns.nvim",
-			"nvim-tree/nvim-web-devicons",
-		},
-		init = function()
-			vim.g.barbar_auto_setup = false
+		"akinsho/bufferline.nvim",
+		version = "*",
+		dependencies = "nvim-tree/nvim-web-devicons",
+		config = function()
+			require("bufferline").setup({
+				options = {
+					numbers = "none", -- "none", "ordinal", "both"
+					offsets = { { filetype = "NvimTree", text = "File Explorer", text_align = "center" } },
+					show_close_icon = true,
+					show_buffer_icons = true,
+					separator_style = "blank", -- Options: "slant", "thick", "thin", "blank"
+					enforce_regular_tabs = false,
+					always_show_bufferline = true,
+					sort_by = "id",
+				},
+			})
 		end,
-		opts = {
-			animation = true,
-		},
-		version = "^1.0.0",
 	},
 	{
 		"folke/noice.nvim",
@@ -377,9 +383,36 @@ require("lazy").setup({
 	{
 		"NvChad/nvim-colorizer.lua",
 	},
+	--window resize, change
+	{
+		"mrjones2014/smart-splits.nvim",
+		config = function()
+			require("smart-splits").setup({
+				ignored_buftypes = {
+					"nofile",
+					"quickfix",
+					"prompt",
+				},
+				ignored_filetypes = { "NvimTree" },
+				default_amount = 3,
+				at_edge = "wrap",
+				float_win_behavior = "previous",
+				move_cursor_same_row = false,
+				cursor_follows_swapped_bufs = false,
+				ignored_events = {
+					"BufEnter",
+					"WinEnter",
+				},
+				multiplexer_integration = nil,
+				disable_multiplexer_nav_when_zoomed = true,
+				kitty_password = nil,
+				log_level = "info",
+			})
+		end,
+	},
 })
 
-require("colorizer").setup()
+require("colorizer").setup({})
 
 -- Keymaps --
 local builtin = require("telescope.builtin")
@@ -405,10 +438,32 @@ keymap.set({ "n", "v" }, "<C-c>", '"+y<cr>')
 -- Delete highlight after using "/" or "?"
 keymap.set("n", "<leader>M", ":nohlsearch<cr>")
 --buffer
---ESC + key is option + key, just changed in iterm settings: Profiles > keys > Esc+ enable
-keymap.set("n", "<Esc>d", "<Cmd>BufferPrevious<CR>", opts)
-keymap.set("n", "<Esc>f", "<Cmd>BufferNext<CR>", opts)
-keymap.set("n", "<Esc>g", "<Cmd>BufferClose<CR>", opts)
+keymap.set("n", "<ESC>d", ":BufferLineCyclePrev<CR>", opts)
+keymap.set("n", "<ESC>f", ":BufferLineCycleNext<CR>", opts)
+keymap.set("n", "<ESC>g", ":BufferLinePickClose<CR>", opts)
+keymap.set("n", "<ESC>G", ":BufferLineCloseOthers<CR>", opts)
+
+for i = 1, 9 do
+	keymap.set("n", "<leader>" .. i, ":BufferLineGoToBuffer " .. i .. "<CR>", opts)
+end
+
+--windows
+keymap.set("n", "<leader>sv", ":vsplit<CR>", opts)
+keymap.set("n", "<leader>sh", ":split<CR>", opts)
+keymap.set("n", "<leader>sc", ":close<CR>", opts)
+keymap.set("n", "<C-h>", "<C-w>h", opts)
+keymap.set("n", "<C-l>", "<C-w>l", opts)
+
+keymap.set("n", "<A-h>", require("smart-splits").resize_left)
+keymap.set("n", "<A-j>", require("smart-splits").resize_down)
+keymap.set("n", "<A-k>", require("smart-splits").resize_up)
+keymap.set("n", "<A-l>", require("smart-splits").resize_right)
+
+keymap.set("n", "<leader>h", require("smart-splits").move_cursor_left)
+keymap.set("n", "<leader>j", require("smart-splits").move_cursor_down)
+keymap.set("n", "<leader>k", require("smart-splits").move_cursor_up)
+keymap.set("n", "<leader>l", require("smart-splits").move_cursor_right)
+
 -- Move lines up and down
 keymap.set("n", "<C-j>", ":m .+1<CR>==")
 keymap.set("n", "<C-k>", ":m .-2<CR>==")

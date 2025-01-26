@@ -58,7 +58,26 @@ local goformat = {
 
 local servers = {
 	pyright = {},
-	gopls = {},
+	-- gopls = {},
+	gopls = {
+		settings = {
+			gopls = {
+				analyses = {
+					unusedparams = true,
+					shadow = true,
+				},
+				staticcheck = true,
+				gofumpt = true,
+				hints = {
+					assignVariableTypes = true,
+					compositeLiteralFields = true,
+					constantValues = true,
+					functionTypeParameters = true,
+				},
+			},
+		},
+		filetypes = { "go", "gomod", "gotmpl" },
+	},
 	efm = {
 		init_options = { documentFormatting = true },
 		languages = {
@@ -78,18 +97,41 @@ local servers = {
 	},
 	tsserver = {},
 	html = {
-		filetypes = { "html", "twig", "hbs", "templ" },
-		format = { templating = true },
+		filetypes = { "html", "templ" },
 		settings = {
 			html = {
+				autoClosingTags = true,
 				suggest = {
 					html5 = true,
 					htmx = true,
+					templ = true,
+				},
+				format = {
+					templating = true,
+					wrapLineLength = 120,
 				},
 			},
 		},
 	},
-	templ = {},
+
+	templ = {
+		on_attach = function(client, bufnr)
+			on_attach(client, bufnr)
+		end,
+	},
+	-- html = {
+	-- 	filetypes = { "html", "twig", "hbs", "templ" },
+	-- 	format = { templating = true },
+	-- 	settings = {
+	-- 		html = {
+	-- 			suggest = {
+	-- 				html5 = true,
+	-- 				htmx = true,
+	-- 			},
+	-- 		},
+	-- 	},
+	-- },
+	-- templ = {},
 	elixirls = {},
 	svelte = {},
 	rubocop = {},
@@ -112,6 +154,8 @@ local mason_lspconfig = require("mason-lspconfig")
 mason_lspconfig.setup({
 	ensure_installed = {
 		"gopls",
+		"html",
+		"emmet_ls",
 		"tsserver",
 		"elixirls",
 		"templ",

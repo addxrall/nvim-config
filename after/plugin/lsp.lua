@@ -1,29 +1,48 @@
+-- [[ Configure LSP ]]
 --  This function gets run when an LSP connects to a particular buffer.
-local on_attach = function(client, bufnr)
-	local nmap = function(keys, func, desc)
-		if desc then
-			desc = "LSP: " .. desc
+local on_attach = function(server_name)
+	return function(client, bufnr)
+		local nmap = function(keys, func, desc)
+			if desc then
+				desc = "LSP: " .. desc
+			end
+
+			vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc })
 		end
 
-		vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc })
+		vim.keymap.set("n", "<F2>", vim.lsp.buf.rename, { noremap = true })
+		nmap("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
+
+		nmap("gd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
+		nmap("gr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
+		nmap("gI", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
+		nmap("<leader>D", require("telescope.builtin").lsp_type_definitions, "Type [D]efinition")
+		nmap("<leader>ds", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
+		nmap("<leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
+
+		-- See `:help K` for why this keymap
+		nmap("K", vim.lsp.buf.hover, "Hover Documentation")
+		nmap("<C-k>", vim.lsp.buf.signature_help, "Signature Documentation")
+
+		-- Lesser used LSP functionality
+		nmap("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
+
+		-- client.server_capabilities.semanticTokensProvider = nil
+
+		local enable_format_lsps = { "svelte", "lua_ls", "efm", "elixirls", "elixir-ls" }
+		local enable_format = false
+		for i = 1, #enable_format_lsps, 1 do
+			if enable_format_lsps[i] == server_name then
+				enable_format = true
+			end
+		end
+
+		if not enable_format then
+			return
+		end
+
+		require("lsp-format").on_attach(client, bufnr)
 	end
-
-	vim.keymap.set("n", "<F2>", vim.lsp.buf.rename, { noremap = true })
-	nmap("gf", vim.lsp.buf.code_action, "[C]ode [A]ction")
-	nmap("gd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
-	nmap("gr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
-	nmap("gI", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
-	nmap("<leader>D", require("telescope.builtin").lsp_type_definitions, "Type [D]efinition")
-	nmap("<leader>ds", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
-	nmap("<leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
-
-	-- See `:help K` for why this keymap
-	nmap("K", vim.lsp.buf.hover, "Hover Documentation")
-
-	-- Lesser used LSP functionality
-	nmap("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
-
-	require("lsp-format").on_attach(client, bufnr)
 end
 
 -- mason-lspconfig requires that these setup functions are called in this order
@@ -31,107 +50,21 @@ end
 require("mason").setup()
 require("mason-lspconfig").setup()
 
-local prettier = {
-	formatCommand = [[prettier --stdin-filepath ${INPUT}]],
-	formatStdin = true,
-}
-
-local prettierHTML = {
-	formatCommand = [[echo "${INPUT}" | grep -iqe '\.html\.tmpl$' && prettier --parser html --stdin-filepath ${INPUT}]],
-	formatStdin = true,
-}
-
 local elixirformat = {
-	formatCommand = [[mix format -]],
-	formatStdin = true,
-}
-
-local rubyformat = {
-	formatCommand = [[rubocop -a -f fi -s ${INPUT} --stderr]],
-	formatStdin = true,
-}
-
-local goformat = {
-	formatCommand = [[goimports]],
+	formatCommand = [[env MIX_QUIET=1 mix format -]],
 	formatStdin = true,
 }
 
 local servers = {
-	pyright = {},
-	-- gopls = {},
-	gopls = {
-		settings = {
-			gopls = {
-				analyses = {
-					unusedparams = true,
-					shadow = true,
-				},
-				staticcheck = true,
-				gofumpt = true,
-				hints = {
-					assignVariableTypes = true,
-					compositeLiteralFields = true,
-					constantValues = true,
-					functionTypeParameters = true,
-				},
-			},
-		},
-		filetypes = { "go", "gomod", "gotmpl" },
-	},
 	efm = {
 		init_options = { documentFormatting = true },
 		languages = {
-			typescript = { prettier },
-			typescriptreact = { prettier },
-			json = { prettier },
-			css = { prettier },
-			scss = { prettier },
-			javascript = { prettier },
-			javascriptreact = { prettier },
-			gohtmltmpl = { prettierHTML },
-			gotmpl = { goformat },
-			go = { goformat },
 			elixir = { elixirformat },
-			ruby = { rubyformat },
 		},
 	},
-	tsserver = {},
-	html = {
-		filetypes = { "html", "templ" },
-		settings = {
-			html = {
-				autoClosingTags = true,
-				suggest = {
-					html5 = true,
-					htmx = true,
-					templ = true,
-				},
-				format = {
-					templating = true,
-					wrapLineLength = 120,
-				},
-			},
-		},
-	},
-
-	templ = {
-		on_attach = function(client, bufnr)
-			on_attach(client, bufnr)
-		end,
-	},
-	-- html = {
-	-- 	filetypes = { "html", "twig", "hbs", "templ" },
-	-- 	format = { templating = true },
-	-- 	settings = {
-	-- 		html = {
-	-- 			suggest = {
-	-- 				html5 = true,
-	-- 				htmx = true,
-	-- 			},
-	-- 		},
-	-- 	},
-	-- },
-	-- templ = {},
+	gopls = {},
+	ts_ls = {},
+	templ = {},
 	elixirls = {},
 	svelte = {},
 	rubocop = {},
@@ -144,32 +77,26 @@ local servers = {
 	},
 }
 
+-- Setup neovim lua configuration
 require("neodev").setup()
 
+-- nvim-cmp supports additional completion capabilities, so broadcast that to servers
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
 
+-- Ensure the servers above are installed
 local mason_lspconfig = require("mason-lspconfig")
 
 mason_lspconfig.setup({
-	ensure_installed = {
-		"gopls",
-		"html",
-		"emmet_ls",
-		"tsserver",
-		"elixirls",
-		"templ",
-		"efm",
-		"cssls",
-		"lua_ls",
-	},
+	-- ensure_installed = { "ts_ls", "svelte", "templ", "lua_ls", "gopls", "elixirls", "efm" },
+	ensure_installed = { "ts_ls", "svelte", "gopls", "elixirls" },
 })
 
 mason_lspconfig.setup_handlers({
 	function(server_name)
 		require("lspconfig")[server_name].setup({
 			capabilities = capabilities,
-			on_attach = on_attach,
+			on_attach = on_attach(server_name),
 			settings = servers[server_name],
 			filetypes = (servers[server_name] or {}).filetypes,
 			init_options = (servers[server_name] or {}).init_options,

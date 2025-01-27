@@ -20,3 +20,65 @@ vim.api.nvim_create_autocmd("FileType", {
 	end,
 	pattern = { "go" },
 })
+
+-- Keymaps --
+local builtin = require("telescope.builtin")
+local keymap = vim.keymap
+local opts = { noremap = true, silent = true }
+
+vim.o.completeopt = "menuone,noselect"
+
+keymap.set({ "n", "v" }, "<leader>p", '"_dP')
+-- telescope
+keymap.set("n", "<leader><leader>", builtin.find_files, {})
+keymap.set("n", "<leader>g", builtin.live_grep, {})
+-- code actions
+keymap.set({ "v", "n" }, "<leader>ca", require("actions-preview").code_actions)
+-- lsp format
+keymap.set("n", "<leader>fm", vim.lsp.buf.format)
+-- comment toggle
+keymap.set({ "n", "v" }, "<leader>/", ":CommentToggle<cr>", opts)
+-- Explore files
+-- keymap.set("n", "<leader>E", ":Explore<cr>")
+-- Copy to system clipboard (ctrl + c)
+keymap.set({ "n", "v" }, "<C-c>", '"+y<cr>')
+-- Delete highlight after using "/" or "?"
+keymap.set("n", "<leader>M", ":nohlsearch<cr>")
+--buffer
+keymap.set("n", "<ESC>d", ":BufferLineCyclePrev<CR>", opts)
+keymap.set("n", "<ESC>f", ":BufferLineCycleNext<CR>", opts)
+keymap.set("n", "<ESC>g", ":BufferLinePickClose<CR>", opts)
+keymap.set("n", "<ESC>G", ":BufferLineCloseOthers<CR>", opts)
+
+for i = 1, 9 do
+	keymap.set("n", "<leader>" .. i, ":BufferLineGoToBuffer " .. i .. "<CR>", opts)
+end
+
+--windows
+keymap.set("n", "<leader>sv", ":vsplit<CR>", opts)
+keymap.set("n", "<leader>sh", ":split<CR>", opts)
+keymap.set("n", "<leader>sc", ":close<CR>", opts)
+keymap.set("n", "<C-h>", "<C-w>h", opts)
+keymap.set("n", "<C-l>", "<C-w>l", opts)
+
+keymap.set("n", "<A-h>", require("smart-splits").resize_left)
+keymap.set("n", "<A-j>", require("smart-splits").resize_down)
+keymap.set("n", "<A-k>", require("smart-splits").resize_up)
+keymap.set("n", "<A-l>", require("smart-splits").resize_right)
+
+keymap.set("n", "<leader>h", require("smart-splits").move_cursor_left)
+keymap.set("n", "<leader>j", require("smart-splits").move_cursor_down)
+keymap.set("n", "<leader>k", require("smart-splits").move_cursor_up)
+keymap.set("n", "<leader>l", require("smart-splits").move_cursor_right)
+
+-- Move lines up and down
+keymap.set("n", "<C-j>", ":m .+1<CR>==")
+keymap.set("n", "<C-k>", ":m .-2<CR>==")
+keymap.set("i", "<C-j>", "<Esc>:m .+1<CR>==gi")
+keymap.set("i", "<C-k>", "<Esc>:m .-2<CR>==gi")
+keymap.set("v", "<C-j>", ":m '>+1<CR>gv=gv")
+keymap.set("v", "<C-k>", ":m '<-2<CR>gv=gv")
+
+-- Indent multiple lines
+keymap.set("v", "<", "<gv")
+keymap.set("v", ">", ">gv")

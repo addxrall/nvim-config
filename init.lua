@@ -2,13 +2,13 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not (vim.uv or vim.loop).fs_stat(lazypath) then
+if not vim.loop.fs_stat(lazypath) then
 	vim.fn.system({
 		"git",
 		"clone",
 		"--filter=blob:none",
 		"https://github.com/folke/lazy.nvim.git",
-		"--branch=stable",
+		"--branch=stable", -- latest stable release
 		lazypath,
 	})
 end
@@ -16,7 +16,8 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
 	"vague2k/vague.nvim",
-	-- "bettervim/yugen.nvim",
+	"vinitkumar/oscura-vim",
+	"bettervim/yugen.nvim",
 	"tpope/vim-surround",
 	"tpope/vim-abolish",
 	"tpope/vim-endwise",
@@ -24,26 +25,28 @@ require("lazy").setup({
 	"chriskempson/base16-vim",
 	"Lokaltog/vim-distinguished",
 	"protesilaos/tempus-themes-vim",
+	"github/copilot.vim",
 	"flazz/vim-colorschemes",
+	-- { "projekt0n/github-nvim-theme", name = "github-theme" },
+	-- LSP Configuration & Plugins
 	{
-		-- LSP Configuration & Plugins
 		"neovim/nvim-lspconfig",
 		dependencies = {
-			-- Automatically install LSPs to stdpath for neovim
-			"williamboman/mason.nvim",
-			"williamboman/mason-lspconfig.nvim",
-
-			-- Useful status updates for LSP
-			-- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
+			{
+				"mason-org/mason.nvim",
+				version = "v1.11.0",
+			},
+			{
+				"mason-org/mason-lspconfig.nvim",
+				version = "v1.32.0",
+			},
 			{ "j-hui/fidget.nvim", opts = {} },
 
-			-- Additional lua configuration, makes nvim stuff amazing!
 			"folke/neodev.nvim",
 		},
 	},
-
+	-- Autocompletion
 	{
-		-- Autocompletion
 		"hrsh7th/nvim-cmp",
 		dependencies = {
 			-- Snippet Engine & its associated nvim-cmp source
@@ -55,15 +58,13 @@ require("lazy").setup({
 			"hrsh7th/cmp-path",
 		},
 	},
-
 	{
 		"windwp/nvim-autopairs",
 		event = "InsertEnter",
 		opts = {}, -- this is equalent to setup({}) function
 	},
-
+	-- Set lualine as statusline
 	{
-		-- Set lualine as statusline
 		"nvim-lualine/lualine.nvim",
 		-- See `:help lualine.txt`
 		opts = {
@@ -156,59 +157,19 @@ require("lazy").setup({
 			})
 		end,
 	},
-	--Status Line
-	-- {
-	-- 	"nvim-lualine/lualine.nvim",
-	-- 	dependencies = { "nvim-tree/nvim-web-devicons" },
-	-- 	config = function()
-	-- 		require("lualine").setup({
-	-- 			options = {
-	-- 				icons_enabled = false,
-	-- 			},
-	-- 		})
-	-- 	end,
-	-- },
-	-- -- -- Nvim surround - change characters
-	-- --
-	-- -- surr*ound_words             ysiw)           (surround_words)
-	-- -- *make strings               ys$"            "make strings"
-	-- -- [delete ar*ound me!]        ds]             delete around me!
-	-- -- remove <b>HTML t*ags</b>    dst             remove HTML tags
-	-- -- 'change quot*es'            cs'"            "change quotes"
-	-- -- <b>or tag* types</b>        csth1<CR>       <h1>or tag types</h1>
-	-- -- delete(functi*on calls)     dsf             function calls
-	-- --
-	-- {
-	-- 	"kylechui/nvim-surround",
-	-- 	version = "*",
-	-- 	event = "VeryLazy",
-	-- 	config = function()
-	-- 		require("nvim-surround").setup({})
-	-- 	end,
-	-- },
-	-- Utility line
-	-- {
-	-- 	"utilyre/barbecue.nvim",
-	-- 	name = "barbecue",
-	-- 	version = "*",
-	-- 	dependencies = {
-	-- 		"SmiteshP/nvim-navic",
-	-- 	},
-	-- 	opts = {},
-	-- },
 	-- Telescope
 	{
 		"nvim-telescope/telescope.nvim",
 		branch = "0.1.x",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
-			{
-				"nvim-telescope/telescope-fzf-native.nvim",
-				build = "make",
-				cond = function()
-					return vim.fn.executable("make") == 1
-				end,
-			},
+			-- {
+			--   "nvim-telescope/telescope-fzf-native.nvim",
+			--   build = "make",
+			--   cond = function()
+			--     return vim.fn.executable("make") == 1
+			--   end,
+			-- },
 		},
 		config = function()
 			require("telescope").setup({
@@ -226,31 +187,6 @@ require("lazy").setup({
 			})
 		end,
 	},
-	-- {
-	-- 	"nvim-telescope/telescope.nvim",
-	-- 	tag = "0.1.6",
-	-- 	dependencies = { "nvim-lua/plenary.nvim" },
-	-- 	config = function()
-	-- 		require("telescope").setup({
-	-- 			defaults = {
-	-- 				layout_strategy = "vertical",
-	-- 				layout_config = {
-	-- 					preview_cutoff = 1,
-	-- 					prompt_position = "bottom",
-	-- 					mirror = true,
-	-- 					vertical = {
-	-- 						mirror = false,
-	-- 					},
-	-- 				},
-	-- 			},
-	-- 		})
-	--
-	-- 		local keymap = vim.keymap
-	-- 		keymap.set("n", "<leader>ca", function()
-	-- 			require("telescope.builtin").lsp_code_actions()
-	-- 		end, { desc = "Code Actions" })
-	-- 	end,
-	-- },
 	-- Auto Comment
 	{
 		"terrortylor/nvim-comment",

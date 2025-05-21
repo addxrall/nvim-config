@@ -1,3 +1,4 @@
+vim.o.shell = "/bin/bash"
 vim.opt.nu = true
 vim.opt.tabstop = 2
 vim.opt.shiftwidth = 2
@@ -16,6 +17,7 @@ vim.opt.eol = true
 vim.opt.autoread = true
 vim.opt.foldenable = false
 vim.opt.guicursor = ""
+-- vim.o.guicursor = "n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50"
 vim.opt.relativenumber = true
 
 -- wait time for commands to go
@@ -53,10 +55,29 @@ vim.o.undofile = true
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = "menuone,noselect"
 
--- vim.cmd.colorscheme(os.getenv("VIM_COLORSCHEME") or "default")
--- vim.cmd.colorscheme("yugen")
-vim.cmd.colorscheme("vague")
+vim.diagnostic.config({
+	virtual_text = true,
+	signs = true,
+	update_in_insert = false,
+	underline = true,
+	severity_sort = true,
+})
 
-if os.getenv("NO_SYNTAX") == "true" then
-	vim.cmd.syntax("off")
-end
+vim.o.updatetime = 250
+
+vim.api.nvim_create_autocmd("CursorHold", {
+	pattern = "*",
+	callback = function()
+		vim.diagnostic.open_float(nil, { focusable = false, border = "rounded" })
+	end,
+})
+
+vim.cmd.colorscheme(os.getenv("VIM_COLORSCHEME") or "default")
+-- vim.cmd.colorscheme("yugen")
+-- vim.cmd.colorscheme("vague")
+-- vim.cmd.colorscheme("oscura")
+-- vim.cmd.colorscheme("default")
+-- vim.cmd.colorscheme("oscura")
+-- if os.getenv("NO_SYNTAX") == "true" then
+-- 	vim.cmd.syntax("off")
+-- end

@@ -27,7 +27,7 @@ require("lazy").setup({
 	"protesilaos/tempus-themes-vim",
 	"github/copilot.vim",
 	"flazz/vim-colorschemes",
-	-- { "projekt0n/github-nvim-theme", name = "github-theme" },
+	{ "projekt0n/github-nvim-theme", name = "github-theme" },
 	-- LSP Configuration & Plugins
 	{
 		"neovim/nvim-lspconfig",

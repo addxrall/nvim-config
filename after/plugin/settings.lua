@@ -72,12 +72,12 @@ vim.api.nvim_create_autocmd("CursorHold", {
 	end,
 })
 
-vim.cmd.colorscheme(os.getenv("VIM_COLORSCHEME") or "default")
+-- vim.cmd.colorscheme(os.getenv("VIM_COLORSCHEME") or "default")
 -- vim.cmd.colorscheme("yugen")
 -- vim.cmd.colorscheme("vague")
 -- vim.cmd.colorscheme("oscura")
 -- vim.cmd.colorscheme("default")
--- vim.cmd.colorscheme("oscura")
+vim.cmd.colorscheme("github_dark_default")
 -- if os.getenv("NO_SYNTAX") == "true" then
 -- 	vim.cmd.syntax("off")
 -- end

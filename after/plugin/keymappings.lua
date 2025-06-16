@@ -82,3 +82,24 @@ keymap.set("v", "<C-k>", ":m '<-2<CR>gv=gv")
 -- Indent multiple lines
 keymap.set("v", "<", "<gv")
 keymap.set("v", ">", ">gv")
+
+--neo-tree
+vim.keymap.set("n", "<leader>e", ":Neotree toggle<CR>", { desc = "Toggle Neo-tree" })
+vim.keymap.set("n", "<leader>E", function()
+	for _, win in ipairs(vim.api.nvim_list_wins()) do
+		local buf = vim.api.nvim_win_get_buf(win)
+		local ft = vim.api.nvim_buf_get_option(buf, "filetype")
+		if ft == "neo-tree" then
+			vim.api.nvim_set_current_win(win)
+			return
+		end
+	end
+	vim.notify("Neo-tree is not open", vim.log.levels.WARN)
+end, { desc = "Focus Neo-tree window if open" })
+vim.api.nvim_create_autocmd("BufEnter", {
+	callback = function()
+		if vim.bo.filetype == "neo-tree" and #vim.api.nvim_list_wins() == 1 then
+			vim.cmd("quit")
+		end
+	end,
+})

@@ -15,18 +15,20 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
-	"vague2k/vague.nvim",
 	"vinitkumar/oscura-vim",
 	"bettervim/yugen.nvim",
 	"tpope/vim-surround",
 	"tpope/vim-abolish",
 	"tpope/vim-endwise",
-	"huyvohcmc/atlas.vim",
-	"chriskempson/base16-vim",
-	"Lokaltog/vim-distinguished",
-	"protesilaos/tempus-themes-vim",
 	"github/copilot.vim",
-	"flazz/vim-colorschemes",
+	{
+		"slugbyte/lackluster.nvim",
+		lazy = false,
+		priority = 1000,
+		config = function()
+			vim.cmd("colorscheme lackluster-mint") -- or use "lackluster-hack", "lackluster-mint"
+		end,
+	},
 	{ "projekt0n/github-nvim-theme", name = "github-theme" },
 	-- LSP Configuration & Plugins
 	{
@@ -99,23 +101,41 @@ require("lazy").setup({
       ]])
 		end,
 	},
-	{ "leafOfTree/vim-svelte-plugin", ft = "svelte" },
-	-- side folder tree
+	-- { "leafOfTree/vim-svelte-plugin", ft = "svelte" },
+	-- -- side folder tree
+	-- {
+	-- 	"kyazdani42/nvim-tree.lua",
+	-- 	config = function()
+	-- 		require("nvim-tree").setup({})
+	-- 	end,
+	-- 	keys = {
+	-- 		{ "<leader>e", ":NvimTreeToggle<CR>", desc = "Toggle NvimTree" },
+	-- 		{
+	-- 			"<leader>E",
+	-- 			":NvimTreeFocus<CR>",
+	-- 			desc = "Focus NvimTree",
+	-- 		},
+	-- 	},
+	-- },
 	{
-		"kyazdani42/nvim-tree.lua",
-		config = function()
-			require("nvim-tree").setup({})
-		end,
-		keys = {
-			{ "<leader>e", ":NvimTreeToggle<CR>", desc = "Toggle NvimTree" },
-			{
-				"<leader>E",
-				":NvimTreeFocus<CR>",
-				desc = "Focus NvimTree",
-			},
+		"nvim-neo-tree/neo-tree.nvim",
+		branch = "v3.x",
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			"nvim-tree/nvim-web-devicons",
+			"MunifTanjim/nui.nvim",
 		},
-	},
-	-- git decorations
+		config = function()
+			require("neo-tree").setup({
+				filesystem = {
+					filtered_items = {
+						hide_dotfiles = false,
+						hide_gitignored = true,
+					},
+				},
+			})
+		end,
+	}, -- git decorations
 	{
 		"lewis6991/gitsigns.nvim",
 		config = function()
@@ -163,6 +183,7 @@ require("lazy").setup({
 		branch = "0.1.x",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
+			"nvim-telescope/telescope-file-browser.nvim",
 			-- {
 			--   "nvim-telescope/telescope-fzf-native.nvim",
 			--   build = "make",
@@ -198,7 +219,7 @@ require("lazy").setup({
 	{
 		"akinsho/bufferline.nvim",
 		version = "*",
-		dependencies = "nvim-tree/nvim-web-devicons",
+		-- dependencies = "nvim-tree/nvim-web-devicons",
 		config = function()
 			require("bufferline").setup({
 				options = {

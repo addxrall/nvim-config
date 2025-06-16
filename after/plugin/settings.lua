@@ -22,8 +22,8 @@ vim.opt.relativenumber = true
 
 -- wait time for commands to go
 -- vim.opt.updatetime = 300
-vim.g.loaded_netrw = 1
-vim.g.loaded_netrwPlugin = 1
+-- vim.g.loaded_netrw = 1
+-- vim.g.loaded_netrwPlugin = 1
 vim.wo.signcolumn = "yes"
 
 vim.opt.termguicolors = true
@@ -77,7 +77,9 @@ vim.api.nvim_create_autocmd("CursorHold", {
 -- vim.cmd.colorscheme("vague")
 -- vim.cmd.colorscheme("oscura")
 -- vim.cmd.colorscheme("default")
-vim.cmd.colorscheme("github_dark_default")
+-- vim.cmd.colorscheme("github_dark_default")
+-- vim.cmd.colorscheme("kanso")
+-- vim.cmd.colorscheme("monochrome")
 -- if os.getenv("NO_SYNTAX") == "true" then
 -- 	vim.cmd.syntax("off")
 -- end

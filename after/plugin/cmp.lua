@@ -1,30 +1,23 @@
-local cmp = require("cmp")
-local luasnip = require("luasnip")
-require("luasnip.loaders.from_vscode").lazy_load()
-luasnip.config.setup({})
+local status, cmp = pcall(require, "cmp")
+if not status then
+  vim.notify("Failed to load nvim-cmp", vim.log.levels.ERROR)
+  return
+end
 
 cmp.setup({
-	snippet = {
-		expand = function(args)
-			luasnip.lsp_expand(args.body)
-		end,
-	},
-	completion = {
-		completeopt = "menu,menuone,noinsert",
-	},
-	mapping = cmp.mapping.preset.insert({
-		["<Tab>"] = cmp.mapping.confirm({ select = true }),
-		["<C-n>"] = cmp.mapping.select_next_item(),
-		["<C-b>"] = cmp.mapping.select_prev_item(),
-		["<C-d>"] = cmp.mapping.scroll_docs(-2),
-		["<C-f>"] = cmp.mapping.scroll_docs(2),
-		["<C-Space>"] = cmp.mapping.complete({}),
-	}),
-	sources = {
-		{ name = "nvim_lsp" },
-		{ name = "luasnip" },
-		{ name = "ultisnips" },
-		{ name = "emmet_vim" },
-		{ name = "path" },
-	},
+  snippet = {
+    expand = function(args)
+      require("luasnip").lsp_expand(args.body)
+    end,
+  },
+  mapping = cmp.mapping.preset.insert({
+    ["<C-Space>"] = cmp.mapping.complete(),
+    ["<C-e>"] = cmp.mapping.abort(),
+    ["<CR>"] = cmp.mapping.confirm({ select = true }),
+  }),
+  sources = cmp.config.sources({
+    { name = "nvim_lsp" },
+    { name = "luasnip" },
+    { name = "path" },
+  }),
 })

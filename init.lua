@@ -3,7 +3,7 @@ vim.g.maplocalleader = " "
 
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
+if not vim.uv.fs_stat(lazypath) then
   vim.fn.system({
     "git",
     "clone",
@@ -19,7 +19,7 @@ vim.o.completeopt = "menuone,noselect"
 vim.opt.termguicolors = true
 
 require("lazy").setup({
-  -- Colorschemes
+  -- Colorscheme
   {
     "slugbyte/lackluster.nvim",
     lazy = false,
@@ -42,23 +42,25 @@ require("lazy").setup({
       vim.cmd("colorscheme lackluster-mint")
     end,
   },
-  { "projekt0n/github-nvim-theme", name = "github-theme" },
-  "vinitkumar/oscura-vim",
-  "bettervim/yugen.nvim",
+
+  -- LSP
   {
     "neovim/nvim-lspconfig",
     dependencies = {
-      { "mason-org/mason.nvim",           version = "1.11.0" },
-      { "mason-org/mason-lspconfig.nvim", version = "1.32.0" },
-      { "j-hui/fidget.nvim",              opts = {} },
+      "mason-org/mason.nvim",
+      "mason-org/mason-lspconfig.nvim",
+      { "j-hui/fidget.nvim", opts = {} },
       {
         "folke/lazydev.nvim",
+        ft = "lua",
         opts = {
           library = { { path = "luvit-meta/library", words = { "vim" } } },
         },
       },
     },
   },
+
+  -- Uzupelnianie
   {
     "hrsh7th/nvim-cmp",
     dependencies = {
@@ -68,6 +70,9 @@ require("lazy").setup({
       "hrsh7th/cmp-path",
     },
   },
+  "github/copilot.vim",
+
+  -- Wyszukiwanie
   {
     "nvim-telescope/telescope.nvim",
     branch = "0.1.x",
@@ -76,6 +81,10 @@ require("lazy").setup({
       { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
     },
   },
+  -- Do porownania z telescope: <leader>ff / <leader>fg (patrz keymappings.lua)
+  { "ibhagwan/fzf-lua", cmd = "FzfLua" },
+
+  -- Drzewo plikow
   {
     "nvim-tree/nvim-tree.lua",
     dependencies = { "nvim-tree/nvim-web-devicons" },
@@ -95,84 +104,43 @@ require("lazy").setup({
       })
     end,
   },
-  "tpope/vim-surround",
-  "tpope/vim-abolish",
-  "tpope/vim-endwise",
-  "github/copilot.vim",
-  { "windwp/nvim-autopairs",       event = "InsertEnter", opts = {} },
-  {
-    "nvim-lualine/lualine.nvim",
-    opts = { options = { icons_enabled = false, component_separators = "|", section_separators = "" } },
-  },
-  { "elixir-editors/vim-elixir", ft = "elixir" },
-  { "hashivim/vim-terraform",    ft = "terraform" },
-  { "fatih/vim-go",              ft = { "go", "gohtmltmpl" } },
-  { "joerdav/templ.vim",         ft = "templ" },
-  "sbdchd/neoformat",
-  "vim-test/vim-test",
-  {
-    "mattn/emmet-vim",
-    init = function()
-      vim.cmd('imap <expr> <tab> emmet#expandAbbrIntelligent("\\<tab>")')
-    end,
-  },
-  {
-    "sphamba/smear-cursor.nvim",
-    config = function()
-      require("smear_cursor").setup({
-        smear_between_buffers = true,
-        smear_between_neighbor_lines = true,
-        scroll_buffer_space = true,
-        legacy_computing_symbols_support = false,
-        smear_insert_mode = true,
-      })
-      require("smear_cursor").enabled = true
-    end,
-  },
-  {
-    "lewis6991/gitsigns.nvim",
-    config = function()
-      require("gitsigns").setup()
-    end,
-  },
+
+  -- Git
+  { "lewis6991/gitsigns.nvim", event = { "BufReadPre", "BufNewFile" }, opts = {} },
   {
     "kdheepak/lazygit.nvim",
     cmd = "LazyGit",
     dependencies = { "nvim-lua/plenary.nvim" },
     keys = { { "<leader>LG", "<cmd>LazyGit<cr>", desc = "LazyGit" } },
   },
+
+  -- Edycja
+  "tpope/vim-surround",
+  { "windwp/nvim-autopairs", event = "InsertEnter", opts = {} },
+  { "sbdchd/neoformat", cmd = "Neoformat" },
+
+  -- UI
   {
-    "yamatsum/nvim-cursorline",
-    config = function()
-      require("nvim-cursorline").setup({
-        cursorline = { enable = true, timeout = 1000, number = false },
-        cursorword = { enable = true, min_length = 3, hl = { underline = true } },
-      })
-    end,
-  },
-  {
-    "terrortylor/nvim-comment",
-    config = function()
-      require("nvim_comment").setup({ create_mappings = false })
-    end,
+    "nvim-lualine/lualine.nvim",
+    event = "VeryLazy",
+    opts = { options = { icons_enabled = false, component_separators = "|", section_separators = "" } },
   },
   {
     "akinsho/bufferline.nvim",
     version = "*",
-    config = function()
-      require("bufferline").setup({
-        options = {
-          numbers = "none",
-          offsets = { { filetype = "NvimTree", text = "File Explorer", text_align = "center" } },
-          show_close_icon = true,
-          show_buffer_icons = true,
-          separator_style = "blank",
-          enforce_regular_tabs = false,
-          always_show_bufferline = true,
-          sort_by = "id",
-        },
-      })
-    end,
+    event = "VeryLazy",
+    opts = {
+      options = {
+        numbers = "none",
+        offsets = { { filetype = "NvimTree", text = "File Explorer", text_align = "center" } },
+        show_close_icon = true,
+        show_buffer_icons = true,
+        separator_style = "blank",
+        enforce_regular_tabs = false,
+        always_show_bufferline = true,
+        sort_by = "id",
+      },
+    },
   },
   {
     "folke/noice.nvim",
@@ -186,31 +154,6 @@ require("lazy").setup({
     dependencies = { "MunifTanjim/nui.nvim" },
   },
   {
-    "sebdah/vim-delve",
-    ft = "go",
-    init = function()
-      vim.g.delve_new_command = "tabnew"
-    end,
-  },
-  {
-    "mrjones2014/smart-splits.nvim",
-    config = function()
-      require("smart-splits").setup({
-        ignored_buftypes = { "nofile", "quickfix", "prompt" },
-        ignored_filetypes = { "NvimTree" },
-        default_amount = 3,
-        at_edge = "wrap",
-        float_win_behavior = "previous",
-        move_cursor_same_row = false,
-        cursor_follows_swapped_bufs = false,
-        ignored_events = { "BufEnter", "WinEnter" },
-        multiplexer_integration = nil,
-        disable_multiplexer_nav_when_zoomed = true,
-        log_level = "info",
-      })
-    end,
-  },
-  {
     "rachartier/tiny-code-action.nvim",
     dependencies = { "nvim-lua/plenary.nvim", "nvim-telescope/telescope.nvim" },
     event = "LspAttach",
@@ -219,13 +162,7 @@ require("lazy").setup({
       backend = "vim",
     },
   },
-  {
-    "3rd/image.nvim",
-    build = false,
-    opts = {
-      backend = "kitty",
-      processor = "magick_cli",
-      hijack_file_patterns = { "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp", "*.avif" },
-    },
-  },
+
+  -- Jezyki
+  { "fatih/vim-go", ft = { "go", "gohtmltmpl" } },
 })

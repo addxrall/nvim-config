@@ -1,9 +1,11 @@
 local status, mason = pcall(require, "mason")
-local mason_lspconfig_status, mason_lspconfig = pcall(require, "mason-lspconfig")
-if not status or not mason_lspconfig_status then
+local mlsp_status, mason_lspconfig = pcall(require, "mason-lspconfig")
+if not status or not mlsp_status then
   vim.notify("Failed to load mason or mason-lspconfig", vim.log.levels.ERROR)
   return
 end
+
+local servers = { "pyright", "ts_ls", "lua_ls" }
 
 mason.setup({
   ui = {
@@ -15,12 +17,11 @@ mason.setup({
   },
 })
 
-mason_lspconfig.setup({
-  ensure_installed = { "pyright", "ts_ls", "lua_ls" },
-  automatic_installation = true,
-})
+-- automatic_enable=false jest KLUCZOWE: mason-lspconfig 2.x domyslnie wlacza KAZDY
+-- serwer zainstalowany w masonie (masz ich 47), wiec bez tego na buforze .ts
+-- ladowal sie ts_ls RAZEM z vtsls i efm - podwojna diagnostyka i podwojne podpowiedzi.
+mason_lspconfig.setup({ ensure_installed = servers, automatic_enable = false })
 
--- Configure LSP servers using new API
 vim.lsp.config("pyright", {
   settings = { python = { analysis = { autoSearchPaths = true } } },
 })
@@ -37,13 +38,7 @@ vim.lsp.config("lua_ls", {
   },
 })
 
-local servers = { "pyright", "ts_ls", "lua_ls" }
-for _, server in ipairs(servers) do
-  local ok, err = pcall(vim.lsp.enable, { server })
-  if not ok then
-    vim.notify("Failed to enable LSP server " .. server .. ": " .. tostring(err), vim.log.levels.ERROR)
-  end
-end
+vim.lsp.enable(servers)
 
 vim.diagnostic.config({
   virtual_text = true,
@@ -56,33 +51,23 @@ vim.diagnostic.config({
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(ev)
     local opts = { buffer = ev.buf, noremap = true, silent = true }
-    vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+    -- K, gri, ]d, [d, grn, gra sa domyslne od nvim 0.11 - nie duplikuje ich tutaj.
     vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-    vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
     vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
     vim.keymap.set("n", "<leader>dl", vim.diagnostic.open_float, opts)
-    vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
-    vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
     vim.keymap.set("n", "<leader>fm", vim.lsp.buf.format, opts)
-    -- Code actions with tiny-code-action.nvim
     vim.keymap.set({ "n", "v" }, "<leader>ca", function()
-      local ok, tiny_code_action = pcall(require, "tiny-code-action")
+      local ok, tiny = pcall(require, "tiny-code-action")
       if not ok then
         vim.notify("Failed to load tiny-code-action", vim.log.levels.ERROR)
         return
       end
-      local ok, err = pcall(tiny_code_action.code_action)
-      if not ok then
+      local done, err = pcall(tiny.code_action)
+      if not done then
         vim.notify("Error in tiny-code-action: " .. tostring(err), vim.log.levels.ERROR)
       end
-    end, { buffer = ev.buf, desc = "Code Actions", noremap = true, silent = true })
-    if vim.lsp.buf.format then
-      vim.api.nvim_create_autocmd("BufWritePre", {
-        buffer = ev.buf,
-        callback = function()
-          vim.lsp.buf.format({ async = false })
-        end,
-      })
-    end
+    end, vim.tbl_extend("force", opts, { desc = "Code Actions" }))
+    -- Formatowanie przy zapisie robi WYLACZNIE Neoformat (after/plugin/neoformat.vim).
+    -- Wczesniej byl tu jeszcze BufWritePre z vim.lsp.buf.format - obydwa bily sie o ten sam zapis.
   end,
 })

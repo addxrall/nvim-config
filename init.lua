@@ -25,6 +25,20 @@ require("lazy").setup({
     lazy = false,
     priority = 1000,
     config = function()
+      require("lackluster").setup({
+        tweak_syntax = {
+          comment = "#999999",
+        },
+        tweak_highlight = {
+          ["@tag"] = { fg = "#bbbbbb" },
+          ["@tag.delimiter"] = { fg = "#bbbbbb" },
+          ["@tag.builtin"] = { fg = "#bbbbbb" },
+          ["htmlTagName"] = { fg = "#bbbbbb" },
+          ["NvimTreeFolder"] = { fg = "#bbbbbb" },
+          ["NvimTreeFolderIcon"] = { fg = "#bbbbbb" },
+          ["NvimTreeRootFolder"] = { fg = "#bbbbbb" },
+        },
+      })
       vim.cmd("colorscheme lackluster-mint")
     end,
   },
@@ -203,6 +217,15 @@ require("lazy").setup({
     opts = {
       picker = "telescope",
       backend = "vim",
+    },
+  },
+  {
+    "3rd/image.nvim",
+    build = false,
+    opts = {
+      backend = "kitty",
+      processor = "magick_cli",
+      hijack_file_patterns = { "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp", "*.avif" },
     },
   },
 })

@@ -23,8 +23,8 @@ telescope.setup({
       i = {
         ["<C-u>"] = false,
         ["<C-d>"] = false,
-        ["j"] = actions.move_selection_next,
-        ["k"] = actions.move_selection_previous,
+        ["<D-j>"] = actions.move_selection_next,
+        ["<D-k>"] = actions.move_selection_previous,
         ["<Enter>"] = actions.select_default,
         ["<esc>"] = actions.close,
       },

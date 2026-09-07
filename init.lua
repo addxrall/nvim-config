@@ -82,6 +82,7 @@ require("lazy").setup({
     },
   },
   -- Do porownania z telescope: <leader>ff / <leader>fg (patrz keymappings.lua)
+  -- WYMAGA binarki fzf w PATH: brew install fzf. Sama wtyczka to tylko wrapper.
   { "ibhagwan/fzf-lua", cmd = "FzfLua" },
 
   -- Drzewo plikow
